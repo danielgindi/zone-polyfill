@@ -13,10 +13,9 @@ I'm aware that there is an `angular/zone.js` implementation, but:
 4. Here I only try to support `Node.js`, although if there will be a need, it could be adjusted for other platforms as well.
 
 Notes:
-* There is also an experimental (`src/zone.node12.js`) version for node 12.x, which counts on the latest V8 upgrades to properly
+* There was an experimental (`src/zone.node12.js`) version for node 12.x, which counts on the latest V8 upgrades to properly
   keep stack traces through `await` calls.  
-  That version also uses another polyfill for a `weak-value-map` which is compiles natively.  
-  This means that the experimental version cannot be adjusted for browsers.
+  That version proved to be *very* slow due to forcing V8 to generate stack traces which has its cost.
 * I actually took some of the tests from the angular repo, as they already have solid tests (mainly for `EventEmitter`).
 
 ## Installation:
