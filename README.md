@@ -13,10 +13,27 @@ I'm aware that there is an `angular/zone.js` implementation, but:
 4. Here I only try to support `Node.js`, although if there will be a need, it could be adjusted for other platforms as well.
 
 Notes:
+---
 * There was an experimental (`src/zone.node12.js`) version for node 12.x, which counts on the latest V8 upgrades to properly
   keep stack traces through `await` calls.  
   That version proved to be *very* slow due to forcing V8 to generate stack traces which has its cost.
 * I actually took some of the tests from the angular repo, as they already have solid tests (mainly for `EventEmitter`).
+
+Benchmarks of `zone.js` vs `zone-polyfill` (2019-11-12, Intel i7-6770HQ @ 2.60GHz):
+---
+- `zone.js` - Zone-less code - `1062717 ops/sec`
+- `zone.js` - Zoned code - `892525 ops/sec` - **slower by 19.07% than Zone-less code**
+- `zone-polyfill` - Zoned code - `2472462 ops/sec`
+- `zone-polyfill` - Zone-less code - `3084971 ops/sec` - **slower by 24.77% than Zone-less code**
+- No require of any Zone library - `3470300 ops/sec`
+- `zone-polyfill` vs `zone-js` - Zoned code - `zone-polyfill` **faster by 277%**
+- `zone-polyfill` vs `zone-js` - Zone-less code - `zone-polyfill` **faster by 190%**
+- Penalty of requiring `zone-polyfill`, without any usage, vs clean code - **12%**
+- Zone-less mean that the Zone library is required, but `fork`/`run` not called in the benchmark unit.
+- Zone mean that the Zone library is required, and `fork`/`run` are called in the benchmark unit. 
+
+These benchmarks are testing a very simple case of usage vs non-usage of Zone methods, to measure basic penalty to code performance.  
+There could be made more complex benchmarks, for longer scenarios, but these are enough for me to know not to use `zone.js`.  
 
 ## Installation:
 
