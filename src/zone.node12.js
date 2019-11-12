@@ -10,7 +10,14 @@
 //    Otherwise, there may be a tiny extra work done for calling that
 //     specific function.
 
-const WeakValueMap = require('weak-value-map');
+let WeakValueMap;
+
+try {
+    WeakValueMap = require('weakvaluemap');
+}
+catch (ignored) {
+    WeakValueMap = require('weak-value-map');
+}
 
 const {
     IdSymbol,
