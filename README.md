@@ -39,5 +39,38 @@ There could be made more complex benchmarks, for longer scenarios, but these are
 
 ```
 npm i zone-polyfill
+
+// With default patches:
+const Zone = require('zone-polyfill');
+
+// No patched by default:
+const Zone = require('zone-polyfill/unpatched');
 ```
  
+By default `zone-polyfill` patches:
+* `EventEmitter`
+* `Promise`
+* `setInterval`
+* `setTimeout`
+* `setImmediate`
+* `process.nextTick`
+
+This covers most cases, as many callbacks in various libraries are triggered from events etc.  
+This will not cover more complicated cases like a library that has one long-running background connection and many library endpoints that listen to it, as the events were not bound in the context of the current Zone.  
+In this case - `Zone.current.wrap`/`Zone.current.run` usage is required, or a manual patch.
+
+An example of a manual patch:  
+```js
+function patchCallbackArg(proto, name) {
+    const original = proto[name];
+    proto[name] = function (...args) {
+        let cb = args[args.length - 1];
+        if (typeof cb === 'function') {
+            args[args.length - 1] = Zone.current.wrap(cb);
+        }
+        return original.apply(this, args);
+    };
+}
+
+patchCallbackArg(Mongodb.Collection.prototype, 'find');
+```
