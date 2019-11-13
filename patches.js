@@ -1,1 +1,1 @@
-module.exports = require('./patches');
+module.exports = require('./src/patches');
