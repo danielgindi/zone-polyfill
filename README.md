@@ -23,8 +23,8 @@ Benchmarks of `zone.js` vs `zone-polyfill` (2019-11-12, Intel i7-6770HQ @ 2.60GH
 ---
 - `zone.js` - Zone-less code - `1062717 ops/sec`
 - `zone.js` - Zoned code - `892525 ops/sec` - **slower by 19.07% than Zone-less code**
-- `zone-polyfill` - Zoned code - `2472462 ops/sec`
-- `zone-polyfill` - Zone-less code - `3084971 ops/sec` - **slower by 24.77% than Zone-less code**
+- `zone-polyfill` - Zone-less code - `3084971 ops/sec`
+- `zone-polyfill` - Zoned code - `2472462 ops/sec` - **slower by 24.77% than Zone-less code**
 - No require of any Zone library - `3470300 ops/sec`
 - `zone-polyfill` vs `zone-js` - Zoned code - `zone-polyfill` **faster by 277%**
 - `zone-polyfill` vs `zone-js` - Zone-less code - `zone-polyfill` **faster by 190%**

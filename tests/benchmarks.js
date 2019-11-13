@@ -1,9 +1,6 @@
-const Zone = require('../src');
+const Zone = require('../');
 
 const Benchmark = require('benchmark-util');
-
-// Start with an unpatched node
-require('../src/patches').unpatch();
 
 (async () => {
     let bench = new Benchmark();
@@ -11,7 +8,7 @@ require('../src/patches').unpatch();
     bench
         .add(`Test performance of Zoned code`, {
             prepare: () => {
-                require('./patches').patch();
+                require('../patches').patch();
             },
             unit: async () => {
                 Zone.current.fork('my_zone');
@@ -24,7 +21,7 @@ require('../src/patches').unpatch();
                 });
             },
             teardown: () => {
-                require('./patches').unpatch();
+                require('../patches').unpatch();
             },
         })
         .add(`Test performance of Zone-less code`, async () => {
