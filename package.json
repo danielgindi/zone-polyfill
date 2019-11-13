@@ -2,7 +2,7 @@
   "name": "zone-polyfill",
   "version": "0.0.4",
   "description": "A Zone polyfill for node.js",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "lint": "eslint -f codeframe ./",
     "lint-fix": "eslint -f codeframe --fix ./",
@@ -25,7 +25,8 @@
     "src/**/*",
     "lib/**/*",
     "tests/**/*",
-    "index.js"
+    "index.js",
+    "patches.js"
   ],
   "author": "Daniel Cohen Gindi <danielgindi@gmail.com> (https://github.com/danielgindi)",
   "license": "MIT",

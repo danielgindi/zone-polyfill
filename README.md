@@ -40,14 +40,14 @@ There could be made more complex benchmarks, for longer scenarios, but these are
 ```
 npm i zone-polyfill
 
-// With default patches:
+// Vanilla Zone implementation, no default patches:
 const Zone = require('zone-polyfill');
 
-// No patched by default:
-const Zone = require('zone-polyfill/unpatched');
+// Patch the basic stuff:
+const Zone = require('zone-polyfill/patches').patch();
 ```
  
-By default `zone-polyfill` patches:
+`zone-polyfill` provides these (opt-in) patches:
 * `EventEmitter`
 * `Promise`
 * `setInterval`

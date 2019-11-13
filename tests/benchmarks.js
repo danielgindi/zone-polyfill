@@ -11,7 +11,7 @@ require('../src/patches').unpatch();
     bench
         .add(`Test performance of Zoned code`, {
             prepare: () => {
-                require('../src/patches').patch();
+                require('./patches').patch();
             },
             unit: async () => {
                 Zone.current.fork('my_zone');
@@ -24,7 +24,7 @@ require('../src/patches').unpatch();
                 });
             },
             teardown: () => {
-                require('../src/patches').unpatch();
+                require('./patches').unpatch();
             },
         })
         .add(`Test performance of Zone-less code`, async () => {

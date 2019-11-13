@@ -1,4 +1,5 @@
-const Zone = require('../src');
+const Zone = require('./');
+require('./patches').patch();
 
 const chai = require('chai');
 const expect = chai.expect;
