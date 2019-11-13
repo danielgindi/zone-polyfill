@@ -1,6 +1,6 @@
 {
   "name": "zone-polyfill",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A Zone polyfill for node.js",
   "main": "index.js",
   "scripts": {
