@@ -127,8 +127,12 @@ function patch() {
             return listener;
 
         let wrappersMap = listener[EventsWrappersSymbol];
-        if (wrappersMap === undefined)
-            wrappersMap = listener[EventsWrappersSymbol] = new Map();
+        if (wrappersMap === undefined) {
+            // A WeakMap is a weak *key* map.
+            // The key here is the EventEmitter, and we really want a weak ref to it.
+            // This is a perfect fit.
+            wrappersMap = listener[EventsWrappersSymbol] = new WeakMap();
+        }
 
         let wrapped = zone.wrap(listener);
         wrapped[WrappedListenerSymbol] = listener;
