@@ -10,6 +10,11 @@ function patch() {
     const WrappedListenerSymbol = Symbol('[[WrappedListener]]');
 
     const Zone = require('../zone');
+    const fastWrap = (zone, cb) => {
+        return function () {
+            return zone.run(cb, this, arguments);
+        };
+    };
 
     const EventsWrappersSymbol = Symbol('[[Wrappers]]');
 
@@ -35,7 +40,7 @@ function patch() {
             wrappersMap = listener[EventsWrappersSymbol] = new WeakMap();
         }
 
-        let wrapped = zone.wrap(listener);
+        let wrapped = fastWrap(zone, listener);
         wrapped[WrappedListenerSymbol] = listener;
 
         let wrappers = wrappersMap.get(emitter);

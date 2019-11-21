@@ -6,6 +6,11 @@ function patch() {
     patched = true;
 
     const Zone = require('../zone');
+    const fastWrap = (zone, cb) => {
+        return function () {
+            return zone.run(cb, this, arguments);
+        };
+    };
 
     originals.process = Object.create(null);
     originals.process.nextTick = process.nextTick;
@@ -13,7 +18,7 @@ function patch() {
     process.nextTick = function nextTick(fn, ...args) {
         let zone = Zone.current;
         if (zone !== undefined)
-            fn = zone.wrap(fn);
+            fn = fastWrap(zone, fn);
         return _nextTick(fn, ...args);
     };
 }

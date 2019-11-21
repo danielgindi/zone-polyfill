@@ -8,6 +8,11 @@ function patch() {
     patched = true;
 
     const Zone = require('../zone');
+    const fastWrap = (zone, cb) => {
+        return function () {
+            return zone.run(cb, this, arguments);
+        };
+    };
 
     originals.Promise = Object.create(null);
     originals.Promise.prototype = Object.create(null);
@@ -18,9 +23,9 @@ function patch() {
         let zone = Zone.current;
         if (zone !== undefined) {
             if (typeof onFulfilled === 'function')
-                onFulfilled = zone.wrap(onFulfilled);
+                onFulfilled = fastWrap(zone, onFulfilled);
             if (typeof onRejected === 'function')
-                onRejected = zone.wrap(onRejected);
+                onRejected = fastWrap(zone, onRejected);
         }
         return _promiseThen.call(this, onFulfilled, onRejected);
     }, true);
@@ -30,7 +35,7 @@ function patch() {
     patchPrototype(Promise.prototype, 'catch', function (onRejected) {
         let zone = Zone.current;
         if (zone !== undefined)
-            onRejected = zone.wrap(onRejected);
+            onRejected = fastWrap(zone, onRejected);
         return _promiseCatch.call(this, onRejected);
     }, true);
 
@@ -39,7 +44,7 @@ function patch() {
     patchPrototype(Promise.prototype, 'finally', function (onFinally) {
         let zone = Zone.current;
         if (zone !== undefined)
-            onFinally = zone.wrap(onFinally);
+            onFinally = fastWrap(zone, onFinally);
         return _promiseFinally.call(this, onFinally);
     }, true);
 }

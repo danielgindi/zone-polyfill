@@ -12,7 +12,7 @@ function patchPrototype(proto, name, fn, native = false) {
         proto[name] = fn;
     }
 
-    Object.defineProperty(proto[name], 'name', { value: name });
+    Object.defineProperty(fn, 'name', { value: name });
 }
 
 function unpatchPrototype(proto, name, fn, native = false) {
