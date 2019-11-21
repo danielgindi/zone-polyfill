@@ -9,7 +9,7 @@
 // This is a copy of angular/zone.js tests, with slight modifications to use Chai and no TS
 
 const Zone = require('../');
-require('./patches').patch();
+require('../patches').patch();
 
 const { EventEmitter } = require('events');
 

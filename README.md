@@ -45,6 +45,12 @@ const Zone = require('zone-polyfill');
 
 // Patch the basic stuff:
 const Zone = require('zone-polyfill/patches').patch();
+
+// Or, selectively:
+const Zone = require('zone-polyfill/patches/events').patch();
+const Zone = require('zone-polyfill/patches/promise').patch();
+const Zone = require('zone-polyfill/patches/timers').patch();
+const Zone = require('zone-polyfill/patches/nextTick').patch();
 ```
  
 `zone-polyfill` provides these (opt-in) patches:

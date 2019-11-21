@@ -1,35 +1,7 @@
 let patched = false;
-let originals = Object.create(null);
+let originals = require('./originals');
 
-function patchPrototype(proto, name, fn, native = false) {
-    if (native) {
-        Object.defineProperty(proto, name, {
-            configurable: true,
-            writable: true,
-            enumerable: false,
-            value: fn,
-        });
-    }
-    else {
-        proto[name] = fn;
-    }
-
-    Object.defineProperty(proto[name], 'name', { value: name });
-}
-
-function unpatchPrototype(proto, name, fn, native = false) {
-    if (native) {
-        Object.defineProperty(proto, name, {
-            configurable: true,
-            writable: true,
-            enumerable: false,
-            value: fn,
-        });
-    }
-    else {
-        proto[name] = fn;
-    }
-}
+const { patchPrototype, unpatchPrototype } = require('./_util');
 
 function patch() {
     if (patched) return;
@@ -37,78 +9,7 @@ function patch() {
 
     const WrappedListenerSymbol = Symbol('[[WrappedListener]]');
 
-    const Zone = require('./zone');
-
-    originals.setInterval = setInterval;
-    const _setInterval = setInterval;
-    global.setInterval = function setInterval(fn, ...args) {
-        let zone = Zone.current;
-        if (zone !== undefined)
-            fn = zone.wrap(fn);
-        return _setInterval(fn, ...args);
-    };
-
-    originals.setImmediate = setImmediate;
-    const _setImmediate = setImmediate;
-    global.setImmediate = function setImmediate(fn, ...args) {
-        let zone = Zone.current;
-        if (zone !== undefined)
-            fn = zone.wrap(fn);
-        return _setImmediate(fn, ...args);
-    };
-
-    originals.setTimeout = setTimeout;
-    const _setTimeout = setTimeout;
-    global.setTimeout = function setTimeout(fn, ...args) {
-        let zone = Zone.current;
-        if (zone !== undefined)
-            fn = zone.wrap(fn);
-        return _setTimeout(fn, ...args);
-    };
-
-    originals.process = Object.create(null);
-    originals.process.nextTick = process.nextTick;
-    const _nextTick = process.nextTick;
-    process.nextTick = function nextTick(fn, ...args) {
-        let zone = Zone.current;
-        if (zone !== undefined)
-            fn = zone.wrap(fn);
-        return _nextTick(fn, ...args);
-    };
-
-    originals.Promise = Object.create(null);
-    originals.Promise.prototype = Object.create(null);
-
-    originals.Promise.prototype.then = Promise.prototype.then;
-    const _promiseThen = Promise.prototype.then;
-    patchPrototype(Promise.prototype, 'then', function (onFulfilled, onRejected) {
-        let zone = Zone.current;
-        if (zone !== undefined) {
-            if (typeof onFulfilled === 'function')
-                onFulfilled = zone.wrap(onFulfilled);
-            if (typeof onRejected === 'function')
-                onRejected = zone.wrap(onRejected);
-        }
-        return _promiseThen.call(this, onFulfilled, onRejected);
-    }, true);
-
-    originals.Promise.prototype.catch = Promise.prototype.catch;
-    const _promiseCatch = Promise.prototype.catch;
-    patchPrototype(Promise.prototype, 'catch', function (onRejected) {
-        let zone = Zone.current;
-        if (zone !== undefined)
-            onRejected = zone.wrap(onRejected);
-        return _promiseCatch.call(this, onRejected);
-    }, true);
-
-    originals.Promise.prototype.finally = Promise.prototype.finally;
-    const _promiseFinally = Promise.prototype.finally;
-    patchPrototype(Promise.prototype, 'finally', function (onFinally) {
-        let zone = Zone.current;
-        if (zone !== undefined)
-            onFinally = zone.wrap(onFinally);
-        return _promiseFinally.call(this, onFinally);
-    }, true);
+    const Zone = require('../zone');
 
     const EventsWrappersSymbol = Symbol('[[Wrappers]]');
 
@@ -304,16 +205,8 @@ function patch() {
 function unpatch() {
     if (!patched) return;
 
-    global.setInterval = originals.setInterval;
-    global.setImmediate = originals.setImmediate;
-    global.setTimeout = originals.setTimeout;
-    global.process.nextTick = originals.process.nextTick;
-
     const { EventEmitter } = require('events');
 
-    unpatchPrototype(Promise.prototype, 'then', originals.Promise.prototype.then, true);
-    unpatchPrototype(Promise.prototype, 'catch', originals.Promise.prototype.catch, true);
-    unpatchPrototype(Promise.prototype, 'finally', originals.Promise.prototype.finally, true);
     unpatchPrototype(EventEmitter.prototype, 'addListener', originals.EventEmitter.prototype.addListener);
     unpatchPrototype(EventEmitter.prototype, 'prependListener', originals.EventEmitter.prototype.prependListener);
     unpatchPrototype(EventEmitter.prototype, 'on', originals.EventEmitter.prototype.on);
@@ -323,8 +216,9 @@ function unpatch() {
     unpatchPrototype(EventEmitter.prototype, 'removeListener', originals.EventEmitter.prototype.removeListener);
     unpatchPrototype(EventEmitter.prototype, 'removeAllListeners', originals.EventEmitter.prototype.removeAllListeners);
     unpatchPrototype(EventEmitter.prototype, 'listeners', originals.EventEmitter.prototype.listeners);
+    
+    patched = false;
 }
 
 module.exports.patch = patch;
 module.exports.unpatch = unpatch;
-module.exports.originals = originals;
