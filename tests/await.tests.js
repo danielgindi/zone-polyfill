@@ -41,19 +41,19 @@ describe('async/await', () => {
         async function testAsyncZone1() {
             expect(Zone.current.name).to.equal('A');
             const expectedResult = Math.random();
-            const result = await expectZoneNameAsync(Zone.current.name, Math.random());
+            const result = await expectZoneNameAsync(Zone.current.name, expectedResult);
             expect(Zone.current.name).to.equal('A');
             expect(result).to.equal(expectedResult);
         }
 
-        Zone.current.fork({ name: 'A' }).run(testAsyncZone1);
+        await Zone.current.fork({ name: 'A' }).run(testAsyncZone1);
         expect(Zone.current.name).to.equal('(root zone)');
 
-        Zone.current.fork({ name: 'B' }).run(() => {
+        await Zone.current.fork({ name: 'B' }).run(() => {
             expect(Zone.current.name).to.equal('B');
         });
 
-        Zone.current.fork({ name: 'C' }).run(async () => {
+        await Zone.current.fork({ name: 'C' }).run(async () => {
             expect(Zone.current.name).to.equal('C');
             await expectZoneNameAsync('C');
         });

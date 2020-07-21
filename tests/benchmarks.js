@@ -40,7 +40,7 @@ const Benchmark = require('benchmark-util');
         },
     });
 
-    let slownessFactor = (results[1].totals.avg / results[0].totals.avg) - 1;
+    let slownessFactor = 1 - (results[0].totals.avg / results[1].totals.avg);
 
     let fastest = results.sort(
         (a, b) => a.totals.avg > b.totals.avg ? -1 : a.totals.avg < b.totals.avg ? 1 : 0)[0].name;

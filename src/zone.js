@@ -44,26 +44,26 @@ class Zone {
         if (applyArguments != null && !('length' in applyArguments))
             applyArguments = undefined;
 
-        currentZoneFrame = { zone: this, parent: currentZoneFrame };
+        if (callback.constructor.name === 'AsyncFunction') {
+            return (async () => {
+                currentZoneFrame = { zone: this, parent: currentZoneFrame };
 
-        try {
-            if (callback.constructor.name === 'AsyncFunction') {
-                return async function () {
-                    currentZoneFrame = { zone: this, parent: currentZoneFrame };
-                    try {
-                        return callback.apply(applyThis, applyArguments);
-                    }
-                    finally {
+                return callback
+                    .apply(applyThis, applyArguments)
+                    .finally(() => {
                         currentZoneFrame = currentZoneFrame.parent;
-                    }
-                };
-            }
-            else {
+                    });
+            })();
+        }
+        else {
+            currentZoneFrame = { zone: this, parent: currentZoneFrame };
+
+            try {
                 return callback.apply(applyThis, applyArguments);
             }
-        }
-        finally {
-            currentZoneFrame = currentZoneFrame.parent;
+            finally {
+                currentZoneFrame = currentZoneFrame.parent;
+            }
         }
     }
 
