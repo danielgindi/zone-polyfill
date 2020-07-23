@@ -6,7 +6,7 @@ const Benchmark = require('benchmark-util');
     let bench = new Benchmark();
 
     bench
-        .add(`Test performance of Zoned code`, {
+        .add(`Test performance of Zoned code (new Zones created)`, {
             prepare: () => {
                 require('../patches').patch();
             },
@@ -22,6 +22,25 @@ const Benchmark = require('benchmark-util');
             },
             teardown: () => {
                 require('../patches').unpatch();
+                Zone.disable();
+            },
+        })
+        .add(`Test performance of Zoned code (awaits within single context)`, {
+            prepare: () => {
+                require('../patches').patch();
+                Zone.current.fork('my_zone');
+            },
+            unit: async () => {
+                await new Promise(resolve => {
+                    Zone.current.run(() => {
+                        /test/.test('test');
+                    });
+                    resolve();
+                });
+            },
+            teardown: () => {
+                require('../patches').unpatch();
+                Zone.disable();
             },
         })
         .add(`Test performance of Zone-less code`, async () => {
@@ -29,6 +48,12 @@ const Benchmark = require('benchmark-util');
                 (() => {
                     /test/.test('test');
                 })();
+                resolve();
+            });
+        })
+        .add(`Test performance of Zone-less code (awaits within single context)`, async () => {
+            await new Promise(resolve => {
+                /test/.test('test');
                 resolve();
             });
         });
@@ -40,12 +65,8 @@ const Benchmark = require('benchmark-util');
         },
     });
 
-    let slownessFactor = 1 - (results[0].totals.avg / results[1].totals.avg);
-
-    let fastest = results.sort(
+    let fastest = results.slice(0).sort(
         (a, b) => a.totals.avg > b.totals.avg ? -1 : a.totals.avg < b.totals.avg ? 1 : 0)[0].name;
 
     console.log(`Fastest is: ${fastest}`);
-
-    console.log(`Zoned code is slower than Zone-less code by ${(slownessFactor * 100).toFixed(2)}%`);
 })();

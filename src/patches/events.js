@@ -10,6 +10,8 @@ function patch() {
     const WrappedListenerSymbol = Symbol('[[WrappedListener]]');
 
     const Zone = require('../zone');
+    const RootZone = Zone[require('../private').RootZone];
+
     const fastWrap = (zone, cb) => {
         return function () {
             return zone.run(cb, this, arguments);
@@ -63,7 +65,7 @@ function patch() {
     originals.EventEmitter.prototype.addListener = EventEmitter.prototype.addListener;
     patchPrototype(EventEmitter.prototype, 'addListener', function (type, listener) {
         let zone = Zone.current;
-        if (zone === undefined)
+        if (zone === RootZone)
             return _addListener.apply(this, arguments);
         return _addListener.call(this, type, wrappedEventListener(zone, this, type, listener));
     });
@@ -74,7 +76,7 @@ function patch() {
     originals.EventEmitter.prototype.prependListener = EventEmitter.prototype.prependListener;
     patchPrototype(EventEmitter.prototype, 'prependListener', function (type, listener) {
         let zone = Zone.current;
-        if (zone === undefined)
+        if (zone === RootZone)
             return _prependListener.apply(this, arguments);
         return _prependListener.call(this, type, wrappedEventListener(zone, this, type, listener));
     });
@@ -87,7 +89,7 @@ function patch() {
         EventEmitter.prototype.addListener = _addListener;
         EventEmitter.prototype.on = _addListener;
 
-        if (zone === undefined)
+        if (zone === RootZone)
             _once.apply(this, arguments);
         else
             _once.call(this, type, wrappedEventListener(zone, this, type, listener));
@@ -106,7 +108,7 @@ function patch() {
         EventEmitter.prototype.addListener = _addListener;
         EventEmitter.prototype.on = _addListener;
 
-        if (zone === undefined)
+        if (zone === RootZone)
             _prependOnceListener.apply(this, arguments);
         else
             _prependOnceListener.call(this, type, wrappedEventListener(zone, this, type, listener));
